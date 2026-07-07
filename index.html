@@ -1,1 +1,34 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jwèt Machin - Slot Machine</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🎰 Jwèt Machin 🎰</h1>
+    
+    <div class="balance">Balans: <span id="balance">1000</span> Goud</div>
+    
+    <div class="reels">
+      <div class="reel" id="reel1">🍒</div>
+      <div class="reel" id="reel2">🍒</div>
+      <div class="reel" id="reel3">🍒</div>
+    </div>
 
+    <div class="controls">
+      <div>
+        <label>Pari: </label>
+        <input type="number" id="bet" value="10" min="10" step="10">
+      </div>
+      <button id="spin">🔄 TOUYE (Spin)</button>
+    </div>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
