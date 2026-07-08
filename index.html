@@ -1,34 +1,121 @@
 <!DOCTYPE html>
-<html lang="ht">
+<html lang="pt">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jwèt Machin - Slot Machine</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Carro Legal</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #222;
+    }
+
+    .car {
+      position: relative;
+      width: 300px;
+      animation: drive 4s linear infinite;
+    }
+
+    .body {
+      width: 280px;
+      height: 100px;
+      background: #e74c3c;
+      border-radius: 20px 20px 10px 10px;
+      position: relative;
+      box-shadow: 0 10px 0 #c0392b;
+    }
+
+    .roof {
+      position: absolute;
+      top: -40px;
+      left: 40px;
+      width: 160px;
+      height: 60px;
+      background: #e74c3c;
+      border-radius: 30px 30px 0 0;
+      border: 8px solid #222;
+      border-bottom: none;
+    }
+
+    .window {
+      position: absolute;
+      top: -30px;
+      left: 55px;
+      width: 60px;
+      height: 35px;
+      background: #87CEEB;
+      border-radius: 10px;
+      border: 8px solid #222;
+    }
+
+    .wheel {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: #222;
+      border-radius: 50%;
+      top: 70px;
+      border: 8px solid #ddd;
+    }
+
+    .wheel::after {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: #555;
+      border-radius: 50%;
+      top: 15px;
+      left: 15px;
+    }
+
+    .wheel-front { left: 50px; }
+    .wheel-back { right: 50px; }
+
+    .light {
+      position: absolute;
+      width: 30px;
+      height: 25px;
+      background: #f1c40f;
+      border-radius: 5px;
+      top: 35px;
+    }
+
+    .light-front { right: -10px; }
+    .light-back { left: -10px; background: #e74c3c; }
+
+    @keyframes drive {
+      0% { transform: translateX(-100px); }
+      100% { transform: translateX(300px); }
+    }
+
+    h1 {
+      position: absolute;
+      top: 20px;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎰 Jwèt Machin 🎰</h1>
-    
-    <div class="balance">Balans: <span id="balance">1000</span> Goud</div>
-    
-    <div class="reels">
-      <div class="reel" id="reel1">🍒</div>
-      <div class="reel" id="reel2">🍒</div>
-      <div class="reel" id="reel3">🍒</div>
+  <h1>🚗 Meu Carro</h1>
+  <div class="car">
+    <div class="body">
+      <div class="roof"></div>
+      <div class="window"></div>
+      
+      <!-- Faróis -->
+      <div class="light light-front"></div>
+      <div class="light light-back"></div>
+      
+      <!-- Rodas -->
+      <div class="wheel wheel-front"></div>
+      <div class="wheel wheel-back"></div>
     </div>
-
-    <div class="controls">
-      <div>
-        <label>Pari: </label>
-        <input type="number" id="bet" value="10" min="10" step="10">
-      </div>
-      <button id="spin">🔄 TOUYE (Spin)</button>
-    </div>
-
-    <div id="result" class="result"></div>
   </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
