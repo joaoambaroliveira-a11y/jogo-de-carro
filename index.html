@@ -59,7 +59,7 @@
 
     let gameRunning = true;
     let score = 0;
-    let speed = 6; // velocidade da estrada
+    let speed = 6;
 
     // Carro do jogador
     let player = {
@@ -72,8 +72,8 @@
 
     let keys = {};
     let roadLines = [];
-    let sameDirectionCars = [];   // carros lentos (mesma direção)
-    let oncomingCars = [];        // carros de encontro
+    let sameDirectionCars = [];
+    let oncomingCars = [];
 
     // Linhas da estrada
     for (let i = 0; i < 12; i++) {
@@ -118,31 +118,31 @@
     }
 
     function createSameDirectionCar() {
-      if (Math.random() < 0.012) {
+      if (Math.random() < 0.007) {        // bem menos frequente
         sameDirectionCars.push({
           x: Math.random() * (canvas.width - 100) + 50,
           y: -100,
           width: 50,
           height: 85,
-          speed: speed * 0.55   // ainda mais devagar
+          speed: speed * 0.55
         });
       }
     }
 
     function createOncomingCar() {
-      if (Math.random() < 0.018) {
+      if (Math.random() < 0.011) {        // bem menos frequente
         oncomingCars.push({
           x: Math.random() * (canvas.width - 100) + 50,
           y: -100,
           width: 50,
           height: 85,
-          speed: speed * 1.25   // reduzido (estava 1.6)
+          speed: speed * 1.22
         });
       }
     }
 
     function drawCars() {
-      // Carros mesma direção (azuis - bem lentos)
+      // Carros mesma direção (azuis)
       for (let i = 0; i < sameDirectionCars.length; i++) {
         let car = sameDirectionCars[i];
         drawCar(car.x, car.y, "#3498db", false);
@@ -154,7 +154,7 @@
         }
       }
 
-      // Carros de encontro (vermelhos - mais devagar)
+      // Carros de encontro (vermelhos)
       for (let i = 0; i < oncomingCars.length; i++) {
         let car = oncomingCars[i];
         drawCar(car.x, car.y, "#e74c3c", true);
@@ -186,7 +186,7 @@
       if (player.x > canvas.width - player.width - 60) player.x = canvas.width - player.width - 60;
 
       score += 1;
-      speed = 6 + Math.floor(score / 300);
+      speed = 6 + Math.floor(score / 350); // aumenta mais devagar
 
       createSameDirectionCar();
       createOncomingCar();
