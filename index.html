@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Corrida Insana</title>
+  <title>Corrida Insana - Tráfego Contrário</title>
   <style>
     body {
       margin: 0;
@@ -14,33 +14,39 @@
       height: 100vh;
       background: #000;
       font-family: Arial, sans-serif;
+      overflow: hidden;
     }
     canvas {
       border: 4px solid #fff;
       image-rendering: pixelated;
-    }
-    #gameOver {
-      position: absolute;
-      color: red;
-      font-size: 50px;
-      display: none;
-      text-align: center;
     }
     #score {
       position: absolute;
       top: 20px;
       left: 20px;
       color: white;
-      font-size: 24px;
+      font-size: 26px;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px black;
+    }
+    #gameOver {
+      position: absolute;
+      color: red;
+      font-size: 48px;
+      display: none;
+      text-align: center;
+      width: 100%;
+      top: 40%;
     }
   </style>
 </head>
 <body>
-  <div id="score">Distância: 0m</div>
+  <div id="score">Distância: 0m | Velocidade: 0</div>
   <canvas id="game" width="400" height="600"></canvas>
+  
   <div id="gameOver">
     GAME OVER<br>
-    <span style="font-size:30px">Sua pontuação: <span id="finalScore">0</span></span><br><br>
+    <span style="font-size:32px">Pontuação: <span id="finalScore">0</span></span><br><br>
     Pressione ESPAÇO para jogar novamente
   </div>
 
@@ -53,104 +59,126 @@
 
     let gameRunning = true;
     let score = 0;
-    let speed = 5;
+    let speed = 6;
 
     // Carro do jogador
     let player = {
-      x: 180,
+      x: 175,
       y: 450,
       width: 50,
-      height: 80,
-      speed: 7
+      height: 90,
+      speed: 8
     };
 
     let keys = {};
     let roadLines = [];
-    let obstacles = [];
+    let sameDirectionCars = [];   // carros indo na mesma direção (mais lentos)
+    let oncomingCars = [];        // NOVO: carros vindo de encontro
 
-    // Criar linhas da estrada
-    for (let i = 0; i < 10; i++) {
-      roadLines.push({ y: i * 80 });
+    // Inicializar linhas da estrada
+    for (let i = 0; i < 12; i++) {
+      roadLines.push({ y: i * 70 });
     }
 
     function drawRoad() {
-      ctx.fillStyle = "#222";
+      ctx.fillStyle = "#1a1a1a";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Gramado lateral
+      // Gramado
       ctx.fillStyle = "#0a3";
-      ctx.fillRect(0, 0, 60, canvas.height);
-      ctx.fillRect(canvas.width - 60, 0, 60, canvas.height);
+      ctx.fillRect(0, 0, 55, canvas.height);
+      ctx.fillRect(canvas.width - 55, 0, 55, canvas.height);
 
-      // Linhas da estrada
-      ctx.strokeStyle = "white";
-      ctx.lineWidth = 8;
+      // Faixas centrais
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 6;
       roadLines.forEach(line => {
         ctx.beginPath();
-        ctx.moveTo(canvas.width/2 - 40, line.y);
-        ctx.lineTo(canvas.width/2 - 40, line.y + 50);
-        ctx.moveTo(canvas.width/2 + 40, line.y);
-        ctx.lineTo(canvas.width/2 + 40, line.y + 50);
+        ctx.setLineDash([40, 30]);
+        ctx.moveTo(canvas.width/2, line.y);
+        ctx.lineTo(canvas.width/2, line.y + 60);
         ctx.stroke();
+        ctx.setLineDash([]);
 
         line.y += speed;
-        if (line.y > canvas.height) line.y = -80;
+        if (line.y > canvas.height) line.y = -100;
       });
     }
 
-    function drawPlayer() {
-      ctx.fillStyle = "#e74c3c";
-      ctx.fillRect(player.x, player.y, player.width, player.height);
+    function drawCar(x, y, color, isOncoming = false) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, 50, 85);
       
-      // Detalhes do carro
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(player.x + 10, player.y + 15, 30, 20); // para-brisa
-      ctx.fillStyle = "#333";
-      ctx.fillRect(player.x + 8, player.y + 55, 34, 15);  // rodas
-      ctx.fillRect(player.x + 8, player.y + 10, 34, 15);
+      // Janelas
+      ctx.fillStyle = isOncoming ? "#ffcc00" : "#87CEEB";
+      ctx.fillRect(x + 8, y + (isOncoming ? 50 : 15), 34, 25);
+      
+      // Rodas
+      ctx.fillStyle = "#111";
+      ctx.fillRect(x + 5, y + 15, 10, 18);
+      ctx.fillRect(x + 35, y + 15, 10, 18);
+      ctx.fillRect(x + 5, y + 55, 10, 18);
+      ctx.fillRect(x + 35, y + 55, 10, 18);
     }
 
-    function createObstacle() {
-      if (Math.random() < 0.02) {
-        obstacles.push({
-          x: Math.random() * (canvas.width - 80) + 40,
-          y: -80,
+    function createSameDirectionCar() {
+      if (Math.random() < 0.015) {
+        sameDirectionCars.push({
+          x: Math.random() * (canvas.width - 100) + 50,
+          y: -100,
           width: 50,
-          height: 80,
-          speed: speed
+          height: 85,
+          speed: speed * 0.7
         });
       }
     }
 
-    function drawObstacles() {
-      ctx.fillStyle = "#3498db";
-      for (let i = 0; i < obstacles.length; i++) {
-        let obs = obstacles[i];
-        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-        
-        obs.y += speed;
-        
-        // Colisão
-        if (
-          player.x < obs.x + obs.width &&
-          player.x + player.width > obs.x &&
-          player.y < obs.y + obs.height &&
-          player.y + player.height > obs.y
-        ) {
-          gameOver();
-        }
+    function createOncomingCar() {
+      if (Math.random() < 0.025) {  // mais frequentes
+        oncomingCars.push({
+          x: Math.random() * (canvas.width - 100) + 50,
+          y: -100,
+          width: 50,
+          height: 85,
+          speed: speed * 1.6   // vem muito mais rápido
+        });
+      }
+    }
 
-        if (obs.y > canvas.height) {
-          obstacles.splice(i, 1);
+    function drawCars() {
+      // Carros mesma direção (azuis)
+      ctx.fillStyle = "#3498db";
+      for (let i = 0; i < sameDirectionCars.length; i++) {
+        let car = sameDirectionCars[i];
+        drawCar(car.x, car.y, "#3498db", false);
+        car.y += car.speed;
+
+        if (car.y > canvas.height) {
+          sameDirectionCars.splice(i, 1);
+          i--;
+        }
+      }
+
+      // Carros de encontro (vermelhos)
+      for (let i = 0; i < oncomingCars.length; i++) {
+        let car = oncomingCars[i];
+        drawCar(car.x, car.y, "#e74c3c", true);
+        car.y += car.speed;
+
+        if (car.y > canvas.height) {
+          oncomingCars.splice(i, 1);
           i--;
         }
       }
     }
 
-    function gameOver() {
-      gameRunning = false;
-      finalScoreElement.textContent = Math.floor(score);
-      gameOverScreen.style.display = "block";
+    function checkCollision(car) {
+      return (
+        player.x < car.x + car.width &&
+        player.x + player.width > car.x &&
+        player.y < car.y + car.height &&
+        player.y + player.height > car.y
+      );
     }
 
     function update() {
@@ -160,21 +188,39 @@
       if (keys["ArrowLeft"] || keys["a"] || keys["A"]) player.x -= player.speed;
       if (keys["ArrowRight"] || keys["d"] || keys["D"]) player.x += player.speed;
 
-      // Limites da tela
+      // Limites
       if (player.x < 60) player.x = 60;
       if (player.x > canvas.width - player.width - 60) player.x = canvas.width - player.width - 60;
 
-      score += 0.5;
-      speed = 5 + Math.floor(score / 300); // aumenta dificuldade
+      score += 1;
+      speed = 6 + Math.floor(score / 250);
 
-      scoreElement.textContent = `Distância: ${Math.floor(score)}m`;
+      // Criar carros
+      createSameDirectionCar();
+      createOncomingCar();
+
+      // Checar colisões
+      [...sameDirectionCars, ...oncomingCars].forEach(car => {
+        if (checkCollision(car)) gameOver();
+      });
+
+      scoreElement.textContent = `Distância: ${Math.floor(score)}m | Vel: ${Math.floor(speed*10)}`;
+    }
+
+    function drawPlayer() {
+      drawCar(player.x, player.y, "#2ecc71", false);
+    }
+
+    function gameOver() {
+      gameRunning = false;
+      finalScoreElement.textContent = Math.floor(score);
+      gameOverScreen.style.display = "block";
     }
 
     function loop() {
       drawRoad();
       drawPlayer();
-      createObstacle();
-      drawObstacles();
+      drawCars();
       update();
 
       requestAnimationFrame(loop);
@@ -184,11 +230,9 @@
     window.addEventListener("keydown", e => keys[e.key] = true);
     window.addEventListener("keyup", e => keys[e.key] = false);
 
-    // Reiniciar jogo
+    // Reiniciar
     window.addEventListener("keypress", e => {
-      if (e.key === " " && !gameRunning) {
-        location.reload();
-      }
+      if (e.key === " " && !gameRunning) location.reload();
     });
 
     loop();
