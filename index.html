@@ -61,27 +61,18 @@
     let score = 0;
     let speed = 6;
 
-    let player = {
-      x: 175,
-      y: 450,
-      width: 52,
-      height: 92,
-      speed: 8
-    };
+    let player = { x: 175, y: 450, width: 52, height: 92, speed: 8 };
 
     let keys = {};
     let roadLines = [];
-    let sameDirectionCars = [];
+    let sameDirectionCars = []; // carros azuis
     let oncomingCars = [];
 
-    for (let i = 0; i < 12; i++) {
-      roadLines.push({ y: i * 70 });
-    }
+    for (let i = 0; i < 12; i++) roadLines.push({ y: i * 70 });
 
     function drawRoad() {
       ctx.fillStyle = "#1a1a1a";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
       ctx.fillStyle = "#0a3";
       ctx.fillRect(0, 0, 55, canvas.height);
       ctx.fillRect(canvas.width - 55, 0, 55, canvas.height);
@@ -95,56 +86,31 @@
         ctx.lineTo(canvas.width/2, line.y + 60);
         ctx.stroke();
         ctx.setLineDash([]);
-
         line.y += speed;
         if (line.y > canvas.height) line.y = -100;
       });
     }
 
     function drawPlayer() {
-      const x = player.x;
-      const y = player.y;
-
-      ctx.fillStyle = "#00ff88";
-      ctx.fillRect(x + 4, y + 8, 44, 72);
-
-      ctx.fillStyle = "#00cc6e";
-      ctx.fillRect(x + 8, y + 12, 36, 64);
-
-      ctx.fillStyle = "#008844";
-      ctx.fillRect(x + 2, y + 12, 48, 8);
-
-      ctx.fillStyle = "#ffee00";
-      ctx.fillRect(x + 8, y + 70, 10, 8);
-      ctx.fillRect(x + 34, y + 70, 10, 8);
-
-      ctx.fillStyle = "#ff2222";
-      ctx.fillRect(x + 6, y + 12, 8, 8);
-      ctx.fillRect(x + 38, y + 12, 8, 8);
-
-      ctx.fillStyle = "#112233";
-      ctx.fillRect(x + 12, y + 18, 28, 22);
-      ctx.fillRect(x + 10, y + 42, 32, 15);
-
-      ctx.fillStyle = "#111111";
-      ctx.fillRect(x + 6, y + 25, 10, 18);
-      ctx.fillRect(x + 36, y + 25, 10, 18);
-      ctx.fillRect(x + 6, y + 58, 10, 18);
-      ctx.fillRect(x + 36, y + 58, 10, 18);
-
-      ctx.fillStyle = "#555555";
-      ctx.fillRect(x + 8, y + 28, 6, 12);
-      ctx.fillRect(x + 38, y + 28, 6, 12);
-      ctx.fillRect(x + 8, y + 61, 6, 12);
-      ctx.fillRect(x + 38, y + 61, 6, 12);
+      const x = player.x, y = player.y;
+      ctx.fillStyle = "#00ff88"; ctx.fillRect(x + 4, y + 8, 44, 72);
+      ctx.fillStyle = "#00cc6e"; ctx.fillRect(x + 8, y + 12, 36, 64);
+      ctx.fillStyle = "#008844"; ctx.fillRect(x + 2, y + 12, 48, 8);
+      ctx.fillStyle = "#ffee00"; ctx.fillRect(x + 8, y + 70, 10, 8); ctx.fillRect(x + 34, y + 70, 10, 8);
+      ctx.fillStyle = "#ff2222"; ctx.fillRect(x + 6, y + 12, 8, 8); ctx.fillRect(x + 38, y + 12, 8, 8);
+      ctx.fillStyle = "#112233"; ctx.fillRect(x + 12, y + 18, 28, 22); ctx.fillRect(x + 10, y + 42, 32, 15);
+      ctx.fillStyle = "#111"; ctx.fillRect(x + 6, y + 25, 10, 18); ctx.fillRect(x + 36, y + 25, 10, 18);
+      ctx.fillRect(x + 6, y + 58, 10, 18); ctx.fillRect(x + 36, y + 58, 10, 18);
     }
 
-    function drawEnemyCar(x, y, color, isOncoming = false) {
+    // Carros azuis com ranks diferentes
+    function drawBlueCar(x, y, rank) {
+      const color = rank === 1 ? "#3498db" : "#2c7da0"; // azul claro e azul escuro
       ctx.fillStyle = color;
       ctx.fillRect(x, y, 50, 85);
       
-      ctx.fillStyle = isOncoming ? "#ffcc00" : "#87CEEB";
-      ctx.fillRect(x + 8, y + (isOncoming ? 50 : 15), 34, 25);
+      ctx.fillStyle = "#87CEEB";
+      ctx.fillRect(x + 8, y + 15, 34, 25);
       
       ctx.fillStyle = "#111";
       ctx.fillRect(x + 5, y + 15, 10, 18);
@@ -154,13 +120,15 @@
     }
 
     function createSameDirectionCar() {
-      if (Math.random() < 0.007) {
+      if (Math.random() < 0.008) {
+        const rank = Math.random() < 0.35 ? 2 : 1; // 35% chance de ser rank 2 (mais rápido)
         sameDirectionCars.push({
           x: Math.random() * (canvas.width - 100) + 50,
           y: -100,
           width: 50,
           height: 85,
-          speed: speed * 0.40   // MUITO mais lento
+          speed: speed * (rank === 1 ? 0.38 : 0.65), // rank 1 bem lento, rank 2 médio
+          rank: rank
         });
       }
     }
@@ -172,7 +140,7 @@
           y: -100,
           width: 50,
           height: 85,
-          speed: speed * 1.05   // Quase na mesma velocidade da estrada
+          speed: speed * 1.05
         });
       }
     }
@@ -180,26 +148,29 @@
     function drawCars() {
       for (let i = 0; i < sameDirectionCars.length; i++) {
         let car = sameDirectionCars[i];
-        drawEnemyCar(car.x, car.y, "#3498db", false);
+        drawBlueCar(car.x, car.y, car.rank);
         car.y += car.speed;
         if (car.y > canvas.height) sameDirectionCars.splice(i--, 1);
       }
 
       for (let i = 0; i < oncomingCars.length; i++) {
         let car = oncomingCars[i];
-        drawEnemyCar(car.x, car.y, "#e74c3c", true);
+        ctx.fillStyle = "#e74c3c";
+        ctx.fillRect(car.x, car.y, 50, 85);
+        ctx.fillStyle = "#ffcc00"; ctx.fillRect(car.x + 8, car.y + 50, 34, 25);
+        ctx.fillStyle = "#111";
+        ctx.fillRect(car.x + 5, car.y + 15, 10, 18); ctx.fillRect(car.x + 35, car.y + 15, 10, 18);
+        ctx.fillRect(car.x + 5, car.y + 55, 10, 18); ctx.fillRect(car.x + 35, car.y + 55, 10, 18);
         car.y += car.speed;
         if (car.y > canvas.height) oncomingCars.splice(i--, 1);
       }
     }
 
     function checkCollision(car) {
-      return (
-        player.x < car.x + car.width &&
-        player.x + player.width > car.x &&
-        player.y < car.y + car.height &&
-        player.y + player.height > car.y
-      );
+      return player.x < car.x + car.width &&
+             player.x + player.width > car.x &&
+             player.y < car.y + car.height &&
+             player.y + player.height > car.y;
     }
 
     function update() {
@@ -208,8 +179,7 @@
       if (keys["ArrowLeft"] || keys["a"] || keys["A"]) player.x -= player.speed;
       if (keys["ArrowRight"] || keys["d"] || keys["D"]) player.x += player.speed;
 
-      if (player.x < 60) player.x = 60;
-      if (player.x > canvas.width - player.width - 60) player.x = canvas.width - player.width - 60;
+      player.x = Math.max(60, Math.min(canvas.width - player.width - 60, player.x));
 
       score += 1;
       speed = 6 + Math.floor(score / 400);
@@ -240,10 +210,7 @@
 
     window.addEventListener("keydown", e => keys[e.key] = true);
     window.addEventListener("keyup", e => keys[e.key] = false);
-
-    window.addEventListener("keypress", e => {
-      if (e.key === " " && !gameRunning) location.reload();
-    });
+    window.addEventListener("keypress", e => { if (e.key === " " && !gameRunning) location.reload(); });
 
     loop();
   </script>
