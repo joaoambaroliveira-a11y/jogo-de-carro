@@ -101,46 +101,37 @@
       });
     }
 
-    // === CARRO MELHORADO DO JOGADOR ===
     function drawPlayer() {
       const x = player.x;
       const y = player.y;
 
-      // Corpo principal
       ctx.fillStyle = "#00ff88";
       ctx.fillRect(x + 4, y + 8, 44, 72);
 
-      // Detalhes laterais (degradê)
       ctx.fillStyle = "#00cc6e";
       ctx.fillRect(x + 8, y + 12, 36, 64);
 
-      // Aerofólio traseiro
       ctx.fillStyle = "#008844";
       ctx.fillRect(x + 2, y + 12, 48, 8);
 
-      // Faróis dianteiros
       ctx.fillStyle = "#ffee00";
       ctx.fillRect(x + 8, y + 70, 10, 8);
       ctx.fillRect(x + 34, y + 70, 10, 8);
 
-      // Lanternas traseiras
       ctx.fillStyle = "#ff2222";
       ctx.fillRect(x + 6, y + 12, 8, 8);
       ctx.fillRect(x + 38, y + 12, 8, 8);
 
-      // Janelas
       ctx.fillStyle = "#112233";
-      ctx.fillRect(x + 12, y + 18, 28, 22); // para-brisa
-      ctx.fillRect(x + 10, y + 42, 32, 15); // janela lateral
+      ctx.fillRect(x + 12, y + 18, 28, 22);
+      ctx.fillRect(x + 10, y + 42, 32, 15);
 
-      // Rodas
       ctx.fillStyle = "#111111";
       ctx.fillRect(x + 6, y + 25, 10, 18);
       ctx.fillRect(x + 36, y + 25, 10, 18);
       ctx.fillRect(x + 6, y + 58, 10, 18);
       ctx.fillRect(x + 36, y + 58, 10, 18);
 
-      // Rodas internas
       ctx.fillStyle = "#555555";
       ctx.fillRect(x + 8, y + 28, 6, 12);
       ctx.fillRect(x + 38, y + 28, 6, 12);
@@ -148,7 +139,6 @@
       ctx.fillRect(x + 38, y + 61, 6, 12);
     }
 
-    // Carros inimigos (mantidos simples)
     function drawEnemyCar(x, y, color, isOncoming = false) {
       ctx.fillStyle = color;
       ctx.fillRect(x, y, 50, 85);
@@ -170,7 +160,7 @@
           y: -100,
           width: 50,
           height: 85,
-          speed: speed * 0.55
+          speed: speed * 0.40   // MUITO mais lento
         });
       }
     }
@@ -182,7 +172,7 @@
           y: -100,
           width: 50,
           height: 85,
-          speed: speed * 1.22
+          speed: speed * 1.05   // Quase na mesma velocidade da estrada
         });
       }
     }
@@ -222,7 +212,7 @@
       if (player.x > canvas.width - player.width - 60) player.x = canvas.width - player.width - 60;
 
       score += 1;
-      speed = 6 + Math.floor(score / 350);
+      speed = 6 + Math.floor(score / 400);
 
       createSameDirectionCar();
       createOncomingCar();
