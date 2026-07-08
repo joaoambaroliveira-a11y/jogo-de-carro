@@ -16,10 +16,7 @@
       font-family: Arial, sans-serif;
       overflow: hidden;
     }
-    canvas {
-      border: 4px solid #fff;
-      image-rendering: pixelated;
-    }
+    canvas { border: 4px solid #fff; image-rendering: pixelated; }
     #score {
       position: absolute;
       top: 20px;
@@ -65,20 +62,20 @@
 
     let keys = {};
     let roadLines = [];
-    let sameDirectionCars = []; // carros azuis
+    let sameDirectionCars = [];
     let oncomingCars = [];
+
+    let lastSpawn = 0; // controle para vir um por vez
 
     for (let i = 0; i < 12; i++) roadLines.push({ y: i * 70 });
 
     function drawRoad() {
-      ctx.fillStyle = "#1a1a1a";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#1a1a1a"; ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#0a3";
       ctx.fillRect(0, 0, 55, canvas.height);
       ctx.fillRect(canvas.width - 55, 0, 55, canvas.height);
 
-      ctx.strokeStyle = "#fff";
-      ctx.lineWidth = 6;
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 6;
       roadLines.forEach(line => {
         ctx.beginPath();
         ctx.setLineDash([40, 30]);
@@ -99,78 +96,76 @@
       ctx.fillStyle = "#ffee00"; ctx.fillRect(x + 8, y + 70, 10, 8); ctx.fillRect(x + 34, y + 70, 10, 8);
       ctx.fillStyle = "#ff2222"; ctx.fillRect(x + 6, y + 12, 8, 8); ctx.fillRect(x + 38, y + 12, 8, 8);
       ctx.fillStyle = "#112233"; ctx.fillRect(x + 12, y + 18, 28, 22); ctx.fillRect(x + 10, y + 42, 32, 15);
-      ctx.fillStyle = "#111"; ctx.fillRect(x + 6, y + 25, 10, 18); ctx.fillRect(x + 36, y + 25, 10, 18);
+      ctx.fillStyle = "#111"; 
+      ctx.fillRect(x + 6, y + 25, 10, 18); ctx.fillRect(x + 36, y + 25, 10, 18);
       ctx.fillRect(x + 6, y + 58, 10, 18); ctx.fillRect(x + 36, y + 58, 10, 18);
     }
 
-    // Carros azuis com ranks diferentes
     function drawBlueCar(x, y, rank) {
-      const color = rank === 1 ? "#3498db" : "#2c7da0"; // azul claro e azul escuro
-      ctx.fillStyle = color;
+      const colors = ["#5dade2", "#3498db", "#2c7da0"];
+      ctx.fillStyle = colors[rank-1];
       ctx.fillRect(x, y, 50, 85);
-      
-      ctx.fillStyle = "#87CEEB";
-      ctx.fillRect(x + 8, y + 15, 34, 25);
-      
+      ctx.fillStyle = "#87CEEB"; ctx.fillRect(x + 8, y + 18, 34, 22);
       ctx.fillStyle = "#111";
-      ctx.fillRect(x + 5, y + 15, 10, 18);
-      ctx.fillRect(x + 35, y + 15, 10, 18);
-      ctx.fillRect(x + 5, y + 55, 10, 18);
-      ctx.fillRect(x + 35, y + 55, 10, 18);
+      ctx.fillRect(x + 6, y + 15, 10, 18); ctx.fillRect(x + 34, y + 15, 10, 18);
+      ctx.fillRect(x + 6, y + 55, 10, 18); ctx.fillRect(x + 34, y + 55, 10, 18);
+
+      ctx.fillStyle = "white";
+      ctx.font = "bold 18px Arial";
+      ctx.fillText(rank, x + 22, y + 48);
+    }
+
+    function canSpawn() {
+      return sameDirectionCars.length === 0 && oncomingCars.length === 0;
     }
 
     function createSameDirectionCar() {
-      if (Math.random() < 0.008) {
-        const rank = Math.random() < 0.35 ? 2 : 1; // 35% chance de ser rank 2 (mais rápido)
+      if (Math.random() < 0.015 && canSpawn()) {
+        const rank = Math.random() < 0.25 ? 3 : (Math.random() < 0.45 ? 2 : 1);
         sameDirectionCars.push({
           x: Math.random() * (canvas.width - 100) + 50,
           y: -100,
           width: 50,
           height: 85,
-          speed: speed * (rank === 1 ? 0.38 : 0.65), // rank 1 bem lento, rank 2 médio
+          speed: speed * (rank === 1 ? 0.35 : rank === 2 ? 0.60 : 0.85),
           rank: rank
         });
       }
     }
 
     function createOncomingCar() {
-      if (Math.random() < 0.011) {
+      if (Math.random() < 0.015 && canSpawn()) {
         oncomingCars.push({
           x: Math.random() * (canvas.width - 100) + 50,
           y: -100,
           width: 50,
           height: 85,
-          speed: speed * 1.05
+          speed: speed * 1.08
         });
       }
     }
 
     function drawCars() {
-      for (let i = 0; i < sameDirectionCars.length; i++) {
-        let car = sameDirectionCars[i];
+      sameDirectionCars.forEach((car, i) => {
         drawBlueCar(car.x, car.y, car.rank);
         car.y += car.speed;
-        if (car.y > canvas.height) sameDirectionCars.splice(i--, 1);
-      }
+        if (car.y > canvas.height) sameDirectionCars.splice(i, 1);
+      });
 
-      for (let i = 0; i < oncomingCars.length; i++) {
-        let car = oncomingCars[i];
-        ctx.fillStyle = "#e74c3c";
-        ctx.fillRect(car.x, car.y, 50, 85);
+      oncomingCars.forEach((car, i) => {
+        ctx.fillStyle = "#e74c3c"; ctx.fillRect(car.x, car.y, 50, 85);
         ctx.fillStyle = "#ffcc00"; ctx.fillRect(car.x + 8, car.y + 50, 34, 25);
         ctx.fillStyle = "#111";
         ctx.fillRect(car.x + 5, car.y + 15, 10, 18); ctx.fillRect(car.x + 35, car.y + 15, 10, 18);
         ctx.fillRect(car.x + 5, car.y + 55, 10, 18); ctx.fillRect(car.x + 35, car.y + 55, 10, 18);
         car.y += car.speed;
-        if (car.y > canvas.height) oncomingCars.splice(i--, 1);
-      }
+        if (car.y > canvas.height) oncomingCars.splice(i, 1);
+      });
     }
 
     function checkCollision(car) {
-      return player.x < car.x + car.width &&
-             player.x + player.width > car.x &&
-             player.y < car.y + car.height &&
-             player.y + player.height > car.y;
+      return player.x < car.x + car.width && player.x + player.width > car.x &&
+             player.y < car.y + car.height && player.y + player.height > car.y;
     }
 
     function update() {
@@ -178,11 +173,10 @@
 
       if (keys["ArrowLeft"] || keys["a"] || keys["A"]) player.x -= player.speed;
       if (keys["ArrowRight"] || keys["d"] || keys["D"]) player.x += player.speed;
-
       player.x = Math.max(60, Math.min(canvas.width - player.width - 60, player.x));
 
       score += 1;
-      speed = 6 + Math.floor(score / 400);
+      speed = 6 + Math.floor(score / 500);
 
       createSameDirectionCar();
       createOncomingCar();
@@ -215,4 +209,4 @@
     loop();
   </script>
 </body>
-</html>
+</html>.
