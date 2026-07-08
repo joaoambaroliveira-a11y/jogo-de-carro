@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Corrida Insana - Tráfego Contrário</title>
+  <title>Corrida Insana</title>
   <style>
     body {
       margin: 0;
@@ -41,7 +41,7 @@
   </style>
 </head>
 <body>
-  <div id="score">Distância: 0m | Velocidade: 0</div>
+  <div id="score">Distância: 0m | Vel: 0</div>
   <canvas id="game" width="400" height="600"></canvas>
   
   <div id="gameOver">
@@ -59,7 +59,7 @@
 
     let gameRunning = true;
     let score = 0;
-    let speed = 6;
+    let speed = 6; // velocidade da estrada
 
     // Carro do jogador
     let player = {
@@ -72,10 +72,10 @@
 
     let keys = {};
     let roadLines = [];
-    let sameDirectionCars = [];   // carros indo na mesma direção (mais lentos)
-    let oncomingCars = [];        // NOVO: carros vindo de encontro
+    let sameDirectionCars = [];   // carros lentos (mesma direção)
+    let oncomingCars = [];        // carros de encontro
 
-    // Inicializar linhas da estrada
+    // Linhas da estrada
     for (let i = 0; i < 12; i++) {
       roadLines.push({ y: i * 70 });
     }
@@ -84,12 +84,10 @@
       ctx.fillStyle = "#1a1a1a";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Gramado
       ctx.fillStyle = "#0a3";
       ctx.fillRect(0, 0, 55, canvas.height);
       ctx.fillRect(canvas.width - 55, 0, 55, canvas.height);
 
-      // Faixas centrais
       ctx.strokeStyle = "#fff";
       ctx.lineWidth = 6;
       roadLines.forEach(line => {
@@ -109,11 +107,9 @@
       ctx.fillStyle = color;
       ctx.fillRect(x, y, 50, 85);
       
-      // Janelas
       ctx.fillStyle = isOncoming ? "#ffcc00" : "#87CEEB";
       ctx.fillRect(x + 8, y + (isOncoming ? 50 : 15), 34, 25);
       
-      // Rodas
       ctx.fillStyle = "#111";
       ctx.fillRect(x + 5, y + 15, 10, 18);
       ctx.fillRect(x + 35, y + 15, 10, 18);
@@ -122,32 +118,31 @@
     }
 
     function createSameDirectionCar() {
-      if (Math.random() < 0.015) {
+      if (Math.random() < 0.012) {
         sameDirectionCars.push({
           x: Math.random() * (canvas.width - 100) + 50,
           y: -100,
           width: 50,
           height: 85,
-          speed: speed * 0.7
+          speed: speed * 0.55   // ainda mais devagar
         });
       }
     }
 
     function createOncomingCar() {
-      if (Math.random() < 0.025) {  // mais frequentes
+      if (Math.random() < 0.018) {
         oncomingCars.push({
           x: Math.random() * (canvas.width - 100) + 50,
           y: -100,
           width: 50,
           height: 85,
-          speed: speed * 1.6   // vem muito mais rápido
+          speed: speed * 1.25   // reduzido (estava 1.6)
         });
       }
     }
 
     function drawCars() {
-      // Carros mesma direção (azuis)
-      ctx.fillStyle = "#3498db";
+      // Carros mesma direção (azuis - bem lentos)
       for (let i = 0; i < sameDirectionCars.length; i++) {
         let car = sameDirectionCars[i];
         drawCar(car.x, car.y, "#3498db", false);
@@ -159,7 +154,7 @@
         }
       }
 
-      // Carros de encontro (vermelhos)
+      // Carros de encontro (vermelhos - mais devagar)
       for (let i = 0; i < oncomingCars.length; i++) {
         let car = oncomingCars[i];
         drawCar(car.x, car.y, "#e74c3c", true);
@@ -184,22 +179,18 @@
     function update() {
       if (!gameRunning) return;
 
-      // Movimento do jogador
       if (keys["ArrowLeft"] || keys["a"] || keys["A"]) player.x -= player.speed;
       if (keys["ArrowRight"] || keys["d"] || keys["D"]) player.x += player.speed;
 
-      // Limites
       if (player.x < 60) player.x = 60;
       if (player.x > canvas.width - player.width - 60) player.x = canvas.width - player.width - 60;
 
       score += 1;
-      speed = 6 + Math.floor(score / 250);
+      speed = 6 + Math.floor(score / 300);
 
-      // Criar carros
       createSameDirectionCar();
       createOncomingCar();
 
-      // Checar colisões
       [...sameDirectionCars, ...oncomingCars].forEach(car => {
         if (checkCollision(car)) gameOver();
       });
@@ -208,7 +199,7 @@
     }
 
     function drawPlayer() {
-      drawCar(player.x, player.y, "#2ecc71", false);
+      drawCar(player.x, player.y, "#2ecc71");
     }
 
     function gameOver() {
@@ -222,15 +213,12 @@
       drawPlayer();
       drawCars();
       update();
-
       requestAnimationFrame(loop);
     }
 
-    // Controles
     window.addEventListener("keydown", e => keys[e.key] = true);
     window.addEventListener("keyup", e => keys[e.key] = false);
 
-    // Reiniciar
     window.addEventListener("keypress", e => {
       if (e.key === " " && !gameRunning) location.reload();
     });
