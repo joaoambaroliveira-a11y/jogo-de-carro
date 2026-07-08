@@ -61,12 +61,11 @@
     let score = 0;
     let speed = 6;
 
-    // Carro do jogador
     let player = {
       x: 175,
       y: 450,
-      width: 50,
-      height: 90,
+      width: 52,
+      height: 92,
       speed: 8
     };
 
@@ -75,7 +74,6 @@
     let sameDirectionCars = [];
     let oncomingCars = [];
 
-    // Linhas da estrada
     for (let i = 0; i < 12; i++) {
       roadLines.push({ y: i * 70 });
     }
@@ -103,7 +101,55 @@
       });
     }
 
-    function drawCar(x, y, color, isOncoming = false) {
+    // === CARRO MELHORADO DO JOGADOR ===
+    function drawPlayer() {
+      const x = player.x;
+      const y = player.y;
+
+      // Corpo principal
+      ctx.fillStyle = "#00ff88";
+      ctx.fillRect(x + 4, y + 8, 44, 72);
+
+      // Detalhes laterais (degradê)
+      ctx.fillStyle = "#00cc6e";
+      ctx.fillRect(x + 8, y + 12, 36, 64);
+
+      // Aerofólio traseiro
+      ctx.fillStyle = "#008844";
+      ctx.fillRect(x + 2, y + 12, 48, 8);
+
+      // Faróis dianteiros
+      ctx.fillStyle = "#ffee00";
+      ctx.fillRect(x + 8, y + 70, 10, 8);
+      ctx.fillRect(x + 34, y + 70, 10, 8);
+
+      // Lanternas traseiras
+      ctx.fillStyle = "#ff2222";
+      ctx.fillRect(x + 6, y + 12, 8, 8);
+      ctx.fillRect(x + 38, y + 12, 8, 8);
+
+      // Janelas
+      ctx.fillStyle = "#112233";
+      ctx.fillRect(x + 12, y + 18, 28, 22); // para-brisa
+      ctx.fillRect(x + 10, y + 42, 32, 15); // janela lateral
+
+      // Rodas
+      ctx.fillStyle = "#111111";
+      ctx.fillRect(x + 6, y + 25, 10, 18);
+      ctx.fillRect(x + 36, y + 25, 10, 18);
+      ctx.fillRect(x + 6, y + 58, 10, 18);
+      ctx.fillRect(x + 36, y + 58, 10, 18);
+
+      // Rodas internas
+      ctx.fillStyle = "#555555";
+      ctx.fillRect(x + 8, y + 28, 6, 12);
+      ctx.fillRect(x + 38, y + 28, 6, 12);
+      ctx.fillRect(x + 8, y + 61, 6, 12);
+      ctx.fillRect(x + 38, y + 61, 6, 12);
+    }
+
+    // Carros inimigos (mantidos simples)
+    function drawEnemyCar(x, y, color, isOncoming = false) {
       ctx.fillStyle = color;
       ctx.fillRect(x, y, 50, 85);
       
@@ -118,7 +164,7 @@
     }
 
     function createSameDirectionCar() {
-      if (Math.random() < 0.007) {        // bem menos frequente
+      if (Math.random() < 0.007) {
         sameDirectionCars.push({
           x: Math.random() * (canvas.width - 100) + 50,
           y: -100,
@@ -130,7 +176,7 @@
     }
 
     function createOncomingCar() {
-      if (Math.random() < 0.011) {        // bem menos frequente
+      if (Math.random() < 0.011) {
         oncomingCars.push({
           x: Math.random() * (canvas.width - 100) + 50,
           y: -100,
@@ -142,28 +188,18 @@
     }
 
     function drawCars() {
-      // Carros mesma direção (azuis)
       for (let i = 0; i < sameDirectionCars.length; i++) {
         let car = sameDirectionCars[i];
-        drawCar(car.x, car.y, "#3498db", false);
+        drawEnemyCar(car.x, car.y, "#3498db", false);
         car.y += car.speed;
-
-        if (car.y > canvas.height) {
-          sameDirectionCars.splice(i, 1);
-          i--;
-        }
+        if (car.y > canvas.height) sameDirectionCars.splice(i--, 1);
       }
 
-      // Carros de encontro (vermelhos)
       for (let i = 0; i < oncomingCars.length; i++) {
         let car = oncomingCars[i];
-        drawCar(car.x, car.y, "#e74c3c", true);
+        drawEnemyCar(car.x, car.y, "#e74c3c", true);
         car.y += car.speed;
-
-        if (car.y > canvas.height) {
-          oncomingCars.splice(i, 1);
-          i--;
-        }
+        if (car.y > canvas.height) oncomingCars.splice(i--, 1);
       }
     }
 
@@ -186,7 +222,7 @@
       if (player.x > canvas.width - player.width - 60) player.x = canvas.width - player.width - 60;
 
       score += 1;
-      speed = 6 + Math.floor(score / 350); // aumenta mais devagar
+      speed = 6 + Math.floor(score / 350);
 
       createSameDirectionCar();
       createOncomingCar();
@@ -196,10 +232,6 @@
       });
 
       scoreElement.textContent = `Distância: ${Math.floor(score)}m | Vel: ${Math.floor(speed*10)}`;
-    }
-
-    function drawPlayer() {
-      drawCar(player.x, player.y, "#2ecc71");
     }
 
     function gameOver() {
