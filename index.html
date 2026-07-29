@@ -15,61 +15,26 @@
       border-radius: 5px;
       font-family: Arial, sans-serif;
     }
-    #formNome {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-    }
-    #formNome input {
-      padding: 5px;
-      margin: 5px;
-    }
   </style>
 </head>
 <body>
-  <div id="formNome">
-    <h3>Digite seu nome para jogar:</h3>
-    <input type="text" id="nomeJogador" placeholder="Seu nome">
-    <button onclick="iniciarJogo()">Começar</button>
-  </div>
-
-  <div id="scoreboard" style="display:none;">
+  <div id="scoreboard">
     <h3>Ranking</h3>
     <ul id="ranking"></ul>
   </div>
-
   <canvas id="gameCanvas" width="400" height="600"></canvas>
 
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const rankingList = document.getElementById("ranking");
-    const formNome = document.getElementById("formNome");
-    const scoreboard = document.getElementById("scoreboard");
 
-    let playerName = "";
+    let playerName = prompt("Digite seu nome:");
     let car = { x: 180, y: 500, width: 40, height: 80, color: "blue" };
     let obstacles = [];
     let score = 0;
     let gameOver = false;
     let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
-
-    function iniciarJogo() {
-      playerName = document.getElementById("nomeJogador").value.trim();
-      if (playerName === "") {
-        alert("Digite um nome válido!");
-        return;
-      }
-      formNome.style.display = "none";
-      scoreboard.style.display = "block";
-      mostrarRanking();
-      gameLoop();
-    }
 
     function drawCar() {
       ctx.fillStyle = car.color;
@@ -146,6 +111,9 @@
       if (e.key === "ArrowLeft" && car.x > 0) car.x -= 20;
       if (e.key === "ArrowRight" && car.x < canvas.width - car.width) car.x += 20;
     });
+
+    mostrarRanking();
+    gameLoop();
   </script>
 </body>
 </html>
