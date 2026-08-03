@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Jogo de Carro com Pista Tripla</title>
+  <title>Jogo de Carro com Detalhes</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { background: #333; display: block; margin: auto; }
@@ -35,21 +35,49 @@
     let laneWidth = canvas.width / 3;
     // posições centrais das faixas
     let lanes = [
-      laneWidth/2 - 20,        // faixa esquerda
-      laneWidth + laneWidth/2 - 20, // faixa do meio
-      2*laneWidth + laneWidth/2 - 20 // faixa direita
+      laneWidth/2 - 20,
+      laneWidth + laneWidth/2 - 20,
+      2*laneWidth + laneWidth/2 - 20
     ];
 
     let currentLane = 1; // começa na faixa do meio
-    let car = { x: lanes[currentLane], y: 500, width: 40, height: 80, color: "blue" };
+    let car = { x: lanes[currentLane], y: 500, width: 40, height: 80 };
     let obstacles = [];
     let score = 0;
     let gameOver = false;
     let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
 
     function drawCar() {
-      ctx.fillStyle = car.color;
+      // carroceria
+      ctx.fillStyle = "blue";
       ctx.fillRect(car.x, car.y, car.width, car.height);
+
+      // para-brisa
+      ctx.fillStyle = "lightblue";
+      ctx.fillRect(car.x + 5, car.y + 5, car.width - 10, 15);
+
+      // faróis
+      ctx.fillStyle = "yellow";
+      ctx.beginPath();
+      ctx.arc(car.x + 5, car.y + 5, 5, 0, Math.PI*2);
+      ctx.arc(car.x + car.width - 5, car.y + 5, 5, 0, Math.PI*2);
+      ctx.fill();
+
+      // lanternas traseiras
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.arc(car.x + 5, car.y + car.height - 5, 5, 0, Math.PI*2);
+      ctx.arc(car.x + car.width - 5, car.y + car.height - 5, 5, 0, Math.PI*2);
+      ctx.fill();
+
+      // pneus
+      ctx.fillStyle = "black";
+      ctx.beginPath();
+      ctx.arc(car.x - 5, car.y + 25, 6, 0, Math.PI*2);
+      ctx.arc(car.x + car.width + 5, car.y + 25, 6, 0, Math.PI*2);
+      ctx.arc(car.x - 5, car.y + car.height - 25, 6, 0, Math.PI*2);
+      ctx.arc(car.x + car.width + 5, car.y + car.height - 25, 6, 0, Math.PI*2);
+      ctx.fill();
     }
 
     function drawObstacles() {
@@ -109,7 +137,7 @@
       }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // desenhar linhas da pista
+      // linhas da pista
       ctx.strokeStyle = "white";
       ctx.setLineDash([20, 20]);
       ctx.beginPath();
