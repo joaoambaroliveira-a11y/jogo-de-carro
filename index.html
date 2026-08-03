@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Jogo de Carro com Dificuldade</title>
+  <title>Jogo de Carro com LED Azul</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { background: #333; display: block; margin: auto; }
@@ -15,29 +15,52 @@
       border-radius: 5px;
       font-family: Arial, sans-serif;
     }
-    #menu {
+    #formNome {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: white;
+      background: #111;
       padding: 20px;
-      border-radius: 10px;
+      border-radius: 15px;
       text-align: center;
+      box-shadow: 0 0 20px #00f, 0 0 40px #00f, 0 0 60px #00f; /* LED azul */
     }
-    #menu button {
-      margin: 5px;
-      padding: 10px 20px;
+    #formNome h3 {
+      color: #00f;
+      font-family: Arial, sans-serif;
+    }
+    #formNome input {
+      padding: 10px;
+      margin: 10px;
+      border: 2px solid #00f;
+      border-radius: 5px;
+      background: #000;
+      color: #00f;
       font-size: 16px;
+      text-align: center;
+      box-shadow: 0 0 10px #00f;
+    }
+    #formNome button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #00f;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 0 15px #00f;
+    }
+    #formNome button:hover {
+      background: #009;
     }
   </style>
 </head>
 <body>
-  <div id="menu">
-    <h3>Escolha a dificuldade</h3>
-    <button onclick="iniciarJogo('facil')">Fácil</button>
-    <button onclick="iniciarJogo('medio')">Médio</button>
-    <button onclick="iniciarJogo('dificil')">Difícil</button>
+  <div id="formNome">
+    <h3>Digite seu nome para jogar</h3>
+    <input type="text" id="nomeJogador" placeholder="Seu nome">
+    <button onclick="iniciarJogo()">Começar</button>
   </div>
 
   <div id="scoreboard" style="display:none;">
@@ -50,7 +73,7 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const rankingList = document.getElementById("ranking");
-    const menu = document.getElementById("menu");
+    const formNome = document.getElementById("formNome");
     const scoreboard = document.getElementById("scoreboard");
 
     let playerName = "";
@@ -68,26 +91,13 @@
     let gameOver = false;
     let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
 
-    // Configurações de dificuldade
-    let velocidadeObstaculos = 5;
-    let chanceObstaculo = 0.03;
-
-    function iniciarJogo(dificuldade) {
-      playerName = prompt("Digite seu nome:");
-      if (!playerName) playerName = "Jogador";
-
-      if (dificuldade === "facil") {
-        velocidadeObstaculos = 4;
-        chanceObstaculo = 0.02;
-      } else if (dificuldade === "medio") {
-        velocidadeObstaculos = 6;
-        chanceObstaculo = 0.03;
-      } else if (dificuldade === "dificil") {
-        velocidadeObstaculos = 8;
-        chanceObstaculo = 0.05;
+    function iniciarJogo() {
+      playerName = document.getElementById("nomeJogador").value.trim();
+      if (playerName === "") {
+        alert("Digite um nome válido!");
+        return;
       }
-
-      menu.style.display = "none";
+      formNome.style.display = "none";
       scoreboard.style.display = "block";
       mostrarRanking();
       gameLoop();
@@ -122,9 +132,9 @@
     }
 
     function updateObstacles() {
-      obstacles.forEach(o => o.y += velocidadeObstaculos);
+      obstacles.forEach(o => o.y += 6);
       obstacles = obstacles.filter(o => o.y < canvas.height);
-      if (Math.random() < chanceObstaculo) {
+      if (Math.random() < 0.03) {
         let lane = lanes[Math.floor(Math.random() * lanes.length)];
         obstacles.push({
           x: lane,
