@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Jogo de Carro com Detalhes</title>
+  <title>Jogo de Carro com Pista Tripla</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { background: #333; display: block; margin: auto; }
@@ -160,14 +160,13 @@
       requestAnimationFrame(gameLoop);
     }
 
+    // movimento mais suave (10px por vez)
     document.addEventListener("keydown", e => {
-      if (e.key === "ArrowLeft" && currentLane > 0) {
-        currentLane--;
-        car.x = lanes[currentLane];
+      if (e.key === "ArrowLeft" && car.x > lanes[0]) {
+        car.x -= 10;
       }
-      if (e.key === "ArrowRight" && currentLane < lanes.length - 1) {
-        currentLane++;
-        car.x = lanes[currentLane];
+      if (e.key === "ArrowRight" && car.x < lanes[2]) {
+        car.x += 10;
       }
     });
 
