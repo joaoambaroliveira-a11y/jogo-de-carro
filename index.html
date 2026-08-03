@@ -45,9 +45,8 @@
     let gameOver = false;
     let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
 
-    // Função para desenhar um carro com detalhes
+    // Função para desenhar carro com detalhes
     function drawCar(x, y, width, height, color) {
-      // carroceria
       ctx.fillStyle = color;
       ctx.fillRect(x, y, width, height);
 
@@ -142,10 +141,10 @@
       ctx.lineTo(2*laneWidth, canvas.height);
       ctx.stroke();
 
-      // desenhar carro do jogador
+      // carro do jogador
       drawCar(car.x, car.y, car.width, car.height, "blue");
 
-      // desenhar carros adversários
+      // carros adversários
       obstacles.forEach(o => drawCar(o.x, o.y, o.width, o.height, o.color));
 
       updateObstacles();
@@ -159,13 +158,13 @@
       requestAnimationFrame(gameLoop);
     }
 
-    // movimento mais suave
+    // movimento mais rápido: 15px por vez
     document.addEventListener("keydown", e => {
       if (e.key === "ArrowLeft" && car.x > lanes[0]) {
-        car.x -= 10;
+        car.x -= 15;
       }
       if (e.key === "ArrowRight" && car.x < lanes[2]) {
-        car.x += 10;
+        car.x += 15;
       }
     });
 
