@@ -31,58 +31,52 @@
 
     let playerName = prompt("Digite seu nome:");
 
-    // largura de cada faixa
     let laneWidth = canvas.width / 3;
-    // posições centrais das faixas
     let lanes = [
       laneWidth/2 - 20,
       laneWidth + laneWidth/2 - 20,
       2*laneWidth + laneWidth/2 - 20
     ];
 
-    let currentLane = 1; // começa na faixa do meio
+    let currentLane = 1;
     let car = { x: lanes[currentLane], y: 500, width: 40, height: 80 };
     let obstacles = [];
     let score = 0;
     let gameOver = false;
     let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
 
-    function drawCar() {
+    // Função para desenhar um carro com detalhes
+    function drawCar(x, y, width, height, color) {
       // carroceria
-      ctx.fillStyle = "blue";
-      ctx.fillRect(car.x, car.y, car.width, car.height);
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, width, height);
 
       // para-brisa
       ctx.fillStyle = "lightblue";
-      ctx.fillRect(car.x + 5, car.y + 5, car.width - 10, 15);
+      ctx.fillRect(x + 5, y + 5, width - 10, 15);
 
       // faróis
       ctx.fillStyle = "yellow";
       ctx.beginPath();
-      ctx.arc(car.x + 5, car.y + 5, 5, 0, Math.PI*2);
-      ctx.arc(car.x + car.width - 5, car.y + 5, 5, 0, Math.PI*2);
+      ctx.arc(x + 5, y + 5, 4, 0, Math.PI*2);
+      ctx.arc(x + width - 5, y + 5, 4, 0, Math.PI*2);
       ctx.fill();
 
       // lanternas traseiras
       ctx.fillStyle = "red";
       ctx.beginPath();
-      ctx.arc(car.x + 5, car.y + car.height - 5, 5, 0, Math.PI*2);
-      ctx.arc(car.x + car.width - 5, car.y + car.height - 5, 5, 0, Math.PI*2);
+      ctx.arc(x + 5, y + height - 5, 4, 0, Math.PI*2);
+      ctx.arc(x + width - 5, y + height - 5, 4, 0, Math.PI*2);
       ctx.fill();
 
       // pneus
       ctx.fillStyle = "black";
       ctx.beginPath();
-      ctx.arc(car.x - 5, car.y + 25, 6, 0, Math.PI*2);
-      ctx.arc(car.x + car.width + 5, car.y + 25, 6, 0, Math.PI*2);
-      ctx.arc(car.x - 5, car.y + car.height - 25, 6, 0, Math.PI*2);
-      ctx.arc(car.x + car.width + 5, car.y + car.height - 25, 6, 0, Math.PI*2);
+      ctx.arc(x - 5, y + 25, 5, 0, Math.PI*2);
+      ctx.arc(x + width + 5, y + 25, 5, 0, Math.PI*2);
+      ctx.arc(x - 5, y + height - 25, 5, 0, Math.PI*2);
+      ctx.arc(x + width + 5, y + height - 25, 5, 0, Math.PI*2);
       ctx.fill();
-    }
-
-    function drawObstacles() {
-      ctx.fillStyle = "red";
-      obstacles.forEach(o => ctx.fillRect(o.x, o.y, o.width, o.height));
     }
 
     function updateObstacles() {
@@ -94,7 +88,8 @@
           x: lane,
           y: -80,
           width: 40,
-          height: 80
+          height: 80,
+          color: "red"
         });
       }
     }
@@ -147,8 +142,12 @@
       ctx.lineTo(2*laneWidth, canvas.height);
       ctx.stroke();
 
-      drawCar();
-      drawObstacles();
+      // desenhar carro do jogador
+      drawCar(car.x, car.y, car.width, car.height, "blue");
+
+      // desenhar carros adversários
+      obstacles.forEach(o => drawCar(o.x, o.y, o.width, o.height, o.color));
+
       updateObstacles();
       checkCollision();
 
@@ -160,7 +159,7 @@
       requestAnimationFrame(gameLoop);
     }
 
-    // movimento mais suave (10px por vez)
+    // movimento mais suave
     document.addEventListener("keydown", e => {
       if (e.key === "ArrowLeft" && car.x > lanes[0]) {
         car.x -= 10;
