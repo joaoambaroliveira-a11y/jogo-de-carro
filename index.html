@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Jogo de Carro com Pista Tripla e Pontuação</title>
+  <title>Jogo de Carro Realista</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { background: #333; display: block; margin: auto; }
@@ -15,6 +15,64 @@
       border-radius: 5px;
       font-family: Arial, sans-serif;
     }
+
+    /* Carro estilizado */
+    .car {
+      position: absolute;
+      width: 50px;
+      height: 90px;
+      background: linear-gradient(to bottom, #1e90ff, #00008b);
+      border-radius: 10px;
+      border: 2px solid #fff;
+    }
+
+    /* Para-brisa */
+    .car .windshield {
+      position: absolute;
+      top: 10px;
+      left: 5px;
+      width: 40px;
+      height: 20px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 5px;
+    }
+
+    /* Faróis dianteiros */
+    .car .headlight {
+      position: absolute;
+      top: 0;
+      width: 10px;
+      height: 10px;
+      background: yellow;
+      border-radius: 50%;
+    }
+    .car .headlight.left { left: 5px; }
+    .car .headlight.right { right: 5px; }
+
+    /* Lanternas traseiras */
+    .car .taillight {
+      position: absolute;
+      bottom: 0;
+      width: 10px;
+      height: 10px;
+      background: red;
+      border-radius: 50%;
+    }
+    .car .taillight.left { left: 5px; }
+    .car .taillight.right { right: 5px; }
+
+    /* Rodas */
+    .car .wheel {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: black;
+      border-radius: 50%;
+    }
+    .car .wheel.front-left { top: 25px; left: -6px; }
+    .car .wheel.front-right { top: 25px; right: -6px; }
+    .car .wheel.back-left { bottom: 25px; left: -6px; }
+    .car .wheel.back-right { bottom: 25px; right: -6px; }
   </style>
 </head>
 <body>
@@ -24,24 +82,33 @@
   </div>
   <canvas id="gameCanvas" width="400" height="600"></canvas>
 
+  <!-- Carro estilizado -->
+  <div class="car" id="car">
+    <div class="windshield"></div>
+    <div class="headlight left"></div>
+    <div class="headlight right"></div>
+    <div class="taillight left"></div>
+    <div class="taillight right"></div>
+    <div class="wheel front-left"></div>
+    <div class="wheel front-right"></div>
+    <div class="wheel back-left"></div>
+    <div class="wheel back-right"></div>
+  </div>
+
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const rankingList = document.getElementById("ranking");
+    const carElement = document.getElementById("car");
 
     let playerName = prompt("Digite seu nome:");
     let lanes = [60, 180, 300]; // três faixas
-    let currentLane = 1; // começa na faixa do meio
-    let car = { x: lanes[currentLane], y: 500, width: 40, height: 80, color: "blue" };
+    let currentLane = 1; // começa no meio
+    let car = { x: lanes[currentLane], y: 500, width: 50, height: 90 };
     let obstacles = [];
     let score = 0;
     let gameOver = false;
     let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
-
-    function drawCar() {
-      ctx.fillStyle = car.color;
-      ctx.fillRect(car.x, car.y, car.width, car.height);
-    }
 
     function drawObstacles() {
       ctx.fillStyle = "red";
@@ -77,7 +144,7 @@
     function salvarRanking() {
       ranking.push({ nome: playerName, pontos: score });
       ranking.sort((a, b) => b.pontos - a.pontos);
-      ranking = ranking.slice(0, 5); // mantém top 5
+      ranking = ranking.slice(0, 5);
       localStorage.setItem("ranking", JSON.stringify(ranking));
       mostrarRanking();
     }
@@ -110,17 +177,19 @@
       ctx.lineTo(266, canvas.height);
       ctx.stroke();
 
-      drawCar();
       drawObstacles();
       updateObstacles();
       checkCollision();
 
-      // pontuação aumenta com o tempo sobrevivido
       score++;
-
       ctx.fillStyle = "white";
       ctx.font = "20px Arial";
       ctx.fillText("Pontuação: " + score, 10, 20);
+
+      // atualizar posição do carro estilizado
+      carElement.style.left = car.x + "px";
+      carElement.style.top = car.y + "px";
+
       requestAnimationFrame(gameLoop);
     }
 
