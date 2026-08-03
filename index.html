@@ -15,14 +15,6 @@
       border-radius: 5px;
       font-family: Arial, sans-serif;
     }
-    .car {
-      position: absolute;
-      width: 50px;
-      height: 90px;
-      background: linear-gradient(to bottom, #1e90ff, #00008b);
-      border-radius: 10px;
-      border: 2px solid #fff;
-    }
   </style>
 </head>
 <body>
@@ -32,30 +24,33 @@
   </div>
   <canvas id="gameCanvas" width="400" height="600"></canvas>
 
-  <div class="car" id="car"></div>
-
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const rankingList = document.getElementById("ranking");
-    const carElement = document.getElementById("car");
 
     let playerName = prompt("Digite seu nome:");
 
-    // Definição das faixas (largura de 400px → 3 faixas de ~133px cada)
+    // largura de cada faixa
     let laneWidth = canvas.width / 3;
+    // posições centrais das faixas
     let lanes = [
-      laneWidth/2 - 25,        // centro da faixa esquerda
-      laneWidth + laneWidth/2 - 25, // centro da faixa do meio
-      2*laneWidth + laneWidth/2 - 25 // centro da faixa direita
+      laneWidth/2 - 20,        // faixa esquerda
+      laneWidth + laneWidth/2 - 20, // faixa do meio
+      2*laneWidth + laneWidth/2 - 20 // faixa direita
     ];
 
     let currentLane = 1; // começa na faixa do meio
-    let car = { x: lanes[currentLane], y: 500, width: 50, height: 90 };
+    let car = { x: lanes[currentLane], y: 500, width: 40, height: 80, color: "blue" };
     let obstacles = [];
     let score = 0;
     let gameOver = false;
     let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+
+    function drawCar() {
+      ctx.fillStyle = car.color;
+      ctx.fillRect(car.x, car.y, car.width, car.height);
+    }
 
     function drawObstacles() {
       ctx.fillStyle = "red";
@@ -70,8 +65,8 @@
         obstacles.push({
           x: lane,
           y: -80,
-          width: 50,
-          height: 90
+          width: 40,
+          height: 80
         });
       }
     }
@@ -124,6 +119,7 @@
       ctx.lineTo(2*laneWidth, canvas.height);
       ctx.stroke();
 
+      drawCar();
       drawObstacles();
       updateObstacles();
       checkCollision();
@@ -132,10 +128,6 @@
       ctx.fillStyle = "white";
       ctx.font = "20px Arial";
       ctx.fillText("Pontuação: " + score, 10, 20);
-
-      // atualizar posição do carro estilizado
-      carElement.style.left = car.x + "px";
-      carElement.style.top = car.y + "px";
 
       requestAnimationFrame(gameLoop);
     }
