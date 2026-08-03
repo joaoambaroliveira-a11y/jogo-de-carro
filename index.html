@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Jogo de Carro com Pista Tripla</title>
+  <title>Jogo de Carro com Dificuldade</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { background: #333; display: block; margin: auto; }
@@ -15,10 +15,32 @@
       border-radius: 5px;
       font-family: Arial, sans-serif;
     }
+    #menu {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    #menu button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
-  <div id="scoreboard">
+  <div id="menu">
+    <h3>Escolha a dificuldade</h3>
+    <button onclick="iniciarJogo('facil')">Fácil</button>
+    <button onclick="iniciarJogo('medio')">Médio</button>
+    <button onclick="iniciarJogo('dificil')">Difícil</button>
+  </div>
+
+  <div id="scoreboard" style="display:none;">
     <h3>Ranking</h3>
     <ul id="ranking"></ul>
   </div>
@@ -28,9 +50,10 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const rankingList = document.getElementById("ranking");
+    const menu = document.getElementById("menu");
+    const scoreboard = document.getElementById("scoreboard");
 
-    let playerName = prompt("Digite seu nome:");
-
+    let playerName = "";
     let laneWidth = canvas.width / 3;
     let lanes = [
       laneWidth/2 - 20,
@@ -45,30 +68,50 @@
     let gameOver = false;
     let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
 
-    // Função para desenhar carro com detalhes
+    // Configurações de dificuldade
+    let velocidadeObstaculos = 5;
+    let chanceObstaculo = 0.03;
+
+    function iniciarJogo(dificuldade) {
+      playerName = prompt("Digite seu nome:");
+      if (!playerName) playerName = "Jogador";
+
+      if (dificuldade === "facil") {
+        velocidadeObstaculos = 4;
+        chanceObstaculo = 0.02;
+      } else if (dificuldade === "medio") {
+        velocidadeObstaculos = 6;
+        chanceObstaculo = 0.03;
+      } else if (dificuldade === "dificil") {
+        velocidadeObstaculos = 8;
+        chanceObstaculo = 0.05;
+      }
+
+      menu.style.display = "none";
+      scoreboard.style.display = "block";
+      mostrarRanking();
+      gameLoop();
+    }
+
     function drawCar(x, y, width, height, color) {
       ctx.fillStyle = color;
       ctx.fillRect(x, y, width, height);
 
-      // para-brisa
       ctx.fillStyle = "lightblue";
       ctx.fillRect(x + 5, y + 5, width - 10, 15);
 
-      // faróis
       ctx.fillStyle = "yellow";
       ctx.beginPath();
       ctx.arc(x + 5, y + 5, 4, 0, Math.PI*2);
       ctx.arc(x + width - 5, y + 5, 4, 0, Math.PI*2);
       ctx.fill();
 
-      // lanternas traseiras
       ctx.fillStyle = "red";
       ctx.beginPath();
       ctx.arc(x + 5, y + height - 5, 4, 0, Math.PI*2);
       ctx.arc(x + width - 5, y + height - 5, 4, 0, Math.PI*2);
       ctx.fill();
 
-      // pneus
       ctx.fillStyle = "black";
       ctx.beginPath();
       ctx.arc(x - 5, y + 25, 5, 0, Math.PI*2);
@@ -79,9 +122,9 @@
     }
 
     function updateObstacles() {
-      obstacles.forEach(o => o.y += 5);
+      obstacles.forEach(o => o.y += velocidadeObstaculos);
       obstacles = obstacles.filter(o => o.y < canvas.height);
-      if (Math.random() < 0.03) {
+      if (Math.random() < chanceObstaculo) {
         let lane = lanes[Math.floor(Math.random() * lanes.length)];
         obstacles.push({
           x: lane,
@@ -131,7 +174,6 @@
       }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // linhas da pista
       ctx.strokeStyle = "white";
       ctx.setLineDash([20, 20]);
       ctx.beginPath();
@@ -141,10 +183,7 @@
       ctx.lineTo(2*laneWidth, canvas.height);
       ctx.stroke();
 
-      // carro do jogador
       drawCar(car.x, car.y, car.width, car.height, "blue");
-
-      // carros adversários
       obstacles.forEach(o => drawCar(o.x, o.y, o.width, o.height, o.color));
 
       updateObstacles();
@@ -158,7 +197,6 @@
       requestAnimationFrame(gameLoop);
     }
 
-    // movimento mais rápido: 15px por vez
     document.addEventListener("keydown", e => {
       if (e.key === "ArrowLeft" && car.x > lanes[0]) {
         car.x -= 15;
@@ -167,9 +205,6 @@
         car.x += 15;
       }
     });
-
-    mostrarRanking();
-    gameLoop();
   </script>
 </body>
 </html>
