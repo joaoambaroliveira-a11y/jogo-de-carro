@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Jogo de Carro com LED Azul</title>
+  <title>Jogo de Carro com Dificuldade</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { background: #333; display: block; margin: auto; }
@@ -24,7 +24,7 @@
       padding: 20px;
       border-radius: 15px;
       text-align: center;
-      box-shadow: 0 0 20px #00f, 0 0 40px #00f, 0 0 60px #00f; /* LED azul */
+      box-shadow: 0 0 20px #00f, 0 0 40px #00f, 0 0 60px #00f;
     }
     #formNome h3 {
       color: #00f;
@@ -42,6 +42,7 @@
       box-shadow: 0 0 10px #00f;
     }
     #formNome button {
+      margin: 5px;
       padding: 10px 20px;
       border: none;
       border-radius: 5px;
@@ -60,7 +61,11 @@
   <div id="formNome">
     <h3>Digite seu nome para jogar</h3>
     <input type="text" id="nomeJogador" placeholder="Seu nome">
-    <button onclick="iniciarJogo()">Começar</button>
+    <br>
+    <h3>Escolha a dificuldade</h3>
+    <button onclick="iniciarJogo('facil')">Fácil</button>
+    <button onclick="iniciarJogo('medio')">Médio</button>
+    <button onclick="iniciarJogo('dificil')">Difícil</button>
   </div>
 
   <div id="scoreboard" style="display:none;">
@@ -91,12 +96,28 @@
     let gameOver = false;
     let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
 
-    function iniciarJogo() {
+    // Configurações de dificuldade
+    let velocidadeObstaculos = 5;
+    let chanceObstaculo = 0.03;
+
+    function iniciarJogo(dificuldade) {
       playerName = document.getElementById("nomeJogador").value.trim();
       if (playerName === "") {
         alert("Digite um nome válido!");
         return;
       }
+
+      if (dificuldade === "facil") {
+        velocidadeObstaculos = 4;
+        chanceObstaculo = 0.02;
+      } else if (dificuldade === "medio") {
+        velocidadeObstaculos = 6;
+        chanceObstaculo = 0.03;
+      } else if (dificuldade === "dificil") {
+        velocidadeObstaculos = 8;
+        chanceObstaculo = 0.05;
+      }
+
       formNome.style.display = "none";
       scoreboard.style.display = "block";
       mostrarRanking();
@@ -132,9 +153,9 @@
     }
 
     function updateObstacles() {
-      obstacles.forEach(o => o.y += 6);
+      obstacles.forEach(o => o.y += velocidadeObstaculos);
       obstacles = obstacles.filter(o => o.y < canvas.height);
-      if (Math.random() < 0.03) {
+      if (Math.random() < chanceObstaculo) {
         let lane = lanes[Math.floor(Math.random() * lanes.length)];
         obstacles.push({
           x: lane,
@@ -217,4 +238,4 @@
     });
   </script>
 </body>
-</html>
+</html
